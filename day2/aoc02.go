@@ -57,7 +57,6 @@ func score(a string, b string) int {
 	default:
 		panic("unexpected " + a + " " + b)
 	}
-	return 0
 }
 
 func input(a string, b string) string {
