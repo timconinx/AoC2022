@@ -8,8 +8,17 @@ import (
 	"strings"
 )
 
+func reverse(source []string) []string {
+	result := []string{}
+	for i := 0; i < len(source); i++ {
+		result = append([]string{source[i]}, result...)
+	}
+	return result
+}
+
 func move(number int, from []string, to []string) ([]string, []string) {
-	return append([]string{}, from[number:]...), append(from[0:number], to...)
+	//	return append([]string{}, from[number:]...), append(reverse(from[0:number]), to...) part A
+	return append([]string{}, from[number:]...), append(from[0:number], to...) // part B
 }
 
 func main() {
