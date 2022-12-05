@@ -33,21 +33,36 @@ func main() {
 		}
 		if regexp.MustCompile(`^\s*?\[`).MatchString(text) {
 			// testinput-specific tweak: first line tells number of stacks
-			if nostacks == 0 {
+			/*if nostacks == 0 {
 				linesize := len(strings.Split(text, ``))
 				nostacks = (linesize + 1) / 4
 				for i := 0; i < nostacks; i++ {
 					stacks = append(stacks, []string{})
 				}
-			}
+			}*/
 			parts := strings.Split(text, ``)
-			for i := 0; i < nostacks; i++ {
+			var i int
+			for len(parts) > 1 {
+				// for i := 0; i < nostacks; i++ {
+				if len(stacks) < i+1 {
+					stacks = append(stacks, []string{})
+				}
 				if parts[1] != " " {
 					stacks[i] = append(stacks[i], parts[1])
 				}
+				i++
 				if len(parts) > 3 {
 					parts = parts[4:]
+				} else {
+					parts = []string{}
 				}
+			}
+		}
+		if regexp.MustCompile(`^\s*\d+`).MatchString(text) {
+			nostackstring := regexp.MustCompile(`(\d+)\s*$`).FindStringSubmatch(text)[1]
+			nostacks, _ = strconv.Atoi(nostackstring)
+			if nostacks != len(stacks) {
+				panic("read " + strconv.Itoa(nostacks) + " but expected " + strconv.Itoa(len(stacks)))
 			}
 		}
 	}
