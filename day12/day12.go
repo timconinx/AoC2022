@@ -34,31 +34,19 @@ func (c coordinate) getNeighbours(maxx, maxy int) []coordinate {
 	result := []coordinate{}
 	// left
 	if c.x > 0 {
-		result = append(result, coordinate{
-			x: c.x - 1,
-			y: c.y,
-		})
+		result = append(result, coordinate{x: c.x - 1, y: c.y})
 	}
 	// right
 	if c.x < maxx {
-		result = append(result, coordinate{
-			x: c.x + 1,
-			y: c.y,
-		})
+		result = append(result, coordinate{x: c.x + 1, y: c.y})
 	}
 	// up
 	if c.y > 0 {
-		result = append(result, coordinate{
-			x: c.x,
-			y: c.y - 1,
-		})
+		result = append(result, coordinate{x: c.x, y: c.y - 1})
 	}
 	// down
 	if c.y < maxy {
-		result = append(result, coordinate{
-			x: c.x,
-			y: c.y + 1,
-		})
+		result = append(result, coordinate{x: c.x, y: c.y + 1})
 	}
 	return result
 }
@@ -79,11 +67,10 @@ func main() {
 		letters[l] = i
 	}
 	var grid = [][]gridspace{}
-	var streams = [][]coordinate{}
-	var start coordinate
+	var streams [][]coordinate
+	var starts = []coordinate{}
 	var end coordinate
 	var maxx, maxy int
-	var pathFound bool
 	var path []coordinate
 
 	file, _ := os.Open("input.txt")
@@ -95,64 +82,72 @@ func main() {
 		}
 		gridline := []gridspace{}
 		for i, l := range text {
-			if l == "S" {
-				start = coordinate{
-					x: i,
-					y: maxy,
-				}
+			if l == "S" || l == "a" {
+				starts = append(starts, coordinate{x: i, y: maxy})
 				l = "a"
 			}
 			if l == "E" {
-				end = coordinate{
-					x: i,
-					y: maxy,
-				}
+				end = coordinate{x: i, y: maxy}
 				l = "z"
 			}
-			gridline = append(gridline, gridspace{
-				letter:  l,
-				painted: false,
-			})
+			gridline = append(gridline, gridspace{letter: l, painted: false})
 		}
 		grid = append(grid, gridline)
 		maxy++
 	}
 	maxy--
-	println("gridsize is " + strconv.Itoa(len(grid[0])) + "x" + strconv.Itoa(len(grid)))
-	println("maxx is " + strconv.Itoa(maxx))
-	println("maxy is " + strconv.Itoa(maxy))
-	println("start is " + start.String())
-	println("end is " + end.String())
 
-	streams = append(streams, []coordinate{start})
-	for {
-		if pathFound {
-			break
-		}
-		newStreams := [][]coordinate{}
-		for _, stream := range streams {
-			lc := stream[len(stream)-1]
-			neighbours := lc.getNeighbours(maxx, maxy)
-			for _, n := range neighbours {
-				newStream := make([]coordinate, len(stream))
-				copy(newStream, stream)
-				if grid[lc.y][lc.x].canFlowTo(grid[n.y][n.x]) {
-					grid[n.y][n.x].painted = true
-					newStream = append(newStream, n)
-					newStreams = append(newStreams, newStream)
-					if n.equals(end) {
-						pathFound = true
-						println("path found")
-						path = newStream
-						break
-					}
-				}
+	min := 500
+	for _, start := range starts { // extra for-loop for part b
+		newgrid := [][]gridspace{}
+		for _, gridline := range grid {
+			newgridline := []gridspace{}
+			for _, gs := range gridline {
+				newgridline = append(newgridline, gridspace{letter: gs.letter, painted: false})
 			}
-			if pathFound {
+			newgrid = append(newgrid, newgridline)
+		}
+		grid = newgrid
+		path = []coordinate{}
+		streams = [][]coordinate{}
+		streams = append(streams, []coordinate{start})
+		var pathFound bool
+		var noNeighbours bool
+		for {
+			if pathFound || noNeighbours {
 				break
 			}
+			newStreams := [][]coordinate{}
+			noNeighbours = true
+			for _, stream := range streams {
+				lc := stream[len(stream)-1]
+				neighbours := lc.getNeighbours(maxx, maxy)
+				noNeighbours = noNeighbours && (len(neighbours) == 0)
+				for _, n := range neighbours {
+					newStream := make([]coordinate, len(stream))
+					copy(newStream, stream)
+					if grid[lc.y][lc.x].canFlowTo(grid[n.y][n.x]) {
+						grid[n.y][n.x].painted = true
+						newStream = append(newStream, n)
+						newStreams = append(newStreams, newStream)
+						if n.equals(end) {
+							pathFound = true
+							path = newStream
+							break
+						}
+					}
+				}
+				if pathFound {
+					break
+				}
+			}
+			streams = newStreams
 		}
-		streams = newStreams
+		if pathFound {
+			if len(path)-1 < min {
+				min = len(path) - 1
+			}
+		}
 	}
-	println("minimal number of steps is " + strconv.Itoa(len(path)-1))
+	println("minimal number of steps is " + strconv.Itoa(min))
 }
