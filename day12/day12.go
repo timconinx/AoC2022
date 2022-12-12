@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type (
@@ -63,6 +64,7 @@ func (c coordinate) String() string {
 }
 
 func main() {
+	startTime := time.Now()
 	for i, l := range strings.Split("abcdefghijklmnopqrstuvwxyz", "") {
 		letters[l] = i
 	}
@@ -150,4 +152,6 @@ func main() {
 		}
 	}
 	println("minimal number of steps is " + strconv.Itoa(min))
+	elapsed := time.Since(startTime)
+	println("elapsed time: " + elapsed.String())
 }
