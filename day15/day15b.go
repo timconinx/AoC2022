@@ -18,10 +18,6 @@ func (lr linerange) Equals(other linerange) bool {
 	return lr.from == other.from && lr.to == other.to
 }
 
-func (lr linerange) String() string {
-	return "[" + strconv.Itoa(lr.from) + "->" + strconv.Itoa(lr.to) + "]"
-}
-
 func (lr linerange) add(lr2 linerange) (linerange, linerange, bool) {
 	if lr.from <= lr2.from && lr.to >= lr2.to {
 		return lr, lr, true
@@ -72,22 +68,6 @@ func (lr linerange) add(lr2 linerange) (linerange, linerange, bool) {
 		return linerange{from: from, to: to}, linerange{}, true
 	}
 	return lr, lr2, false
-}
-
-func (lr linerange) mergeWith(ranges []linerange) []linerange {
-	result := []linerange{}
-	if len(ranges) > 0 {
-		for {
-			var i int
-			if l1, l2, success := lr.add(ranges[i]); success {
-				result = append(result, l1)
-				break
-			} else {
-				result = append(result, []linerange{l1, l2}...)
-			}
-		}
-	}
-	return result
 }
 
 func mDistanceBetween(x1, y1, x2, y2 int) int {
