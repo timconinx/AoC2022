@@ -99,7 +99,6 @@ func main() {
 	file, _ := os.Open("input.txt")
 	defer file.Close()
 	reader := bufio.NewScanner(file)
-	//stdinputreader := bufio.NewScanner(os.Stdin)
 	theInput := [][]int{}
 	for reader.Scan() {
 		theregexp := regexp.MustCompile(`^Sensor\sat\sx=(-?\d+),\sy=(-?\d+):\sclosest\sbeacon\sis\sat\sx=(-?\d+),\sy=(-?\d+)$`)
@@ -128,46 +127,24 @@ func main() {
 					ranges = append(ranges, linerange{from: sensorx, to: sensorx})
 				}
 			}
-			for i := 0; i <= distance; i++ {
-				othery := sensory + (distance - i)
-				if othery == scannedIndex {
-					lr := linerange{from: sensorx - i, to: sensorx + i}
-					if lr.from < 0 {
-						lr.from = 0
-					}
-					if lr.to > bound {
-						lr.to = bound
-					}
-					ranges = append(ranges, lr)
+			if !(scannedIndex < sensory-distance) && !(scannedIndex > sensory+distance) {
+				var i int
+				if scannedIndex <= sensory && scannedIndex >= sensory-distance {
+					i = scannedIndex - (sensory - distance)
+				} else if scannedIndex >= sensory && scannedIndex <= sensory+distance {
+					i = (sensory + distance) - scannedIndex
 				}
-				othery = sensory - (distance - i)
-				if othery == scannedIndex {
-					lr := linerange{from: sensorx - i, to: sensorx + i}
-					if lr.from < 0 {
-						lr.from = 0
-					}
-					if lr.to > bound {
-						lr.to = bound
-					}
-					ranges = append(ranges, lr)
+				lr := linerange{from: sensorx - i, to: sensorx + i}
+				if lr.from < 0 {
+					lr.from = 0
 				}
+				if lr.to > bound {
+					lr.to = bound
+				}
+				ranges = append(ranges, lr)
 			}
 		}
-		/*if scannedIndex%100 == 0 {
-			print(".")
-		}
-		if scannedIndex%4000 == 0 {
-			println(".")
-		}*/
-		//println("cleaning ranges for line " + strconv.Itoa(scannedIndex) + ": nrranges is " + strconv.Itoa(len(ranges)))
 		for {
-			/*if scannedIndex == 12 {
-				for _, lr := range ranges {
-					println(lr.String())
-				}
-				println("enter for iteration")
-				stdinputreader.Scan()
-			}*/
 			if len(ranges) <= 2 {
 				break
 			}
@@ -185,7 +162,6 @@ func main() {
 				}
 			}
 			newranges = append(newranges, baserange)
-			//newranges = append([]linerange{baserange}, newranges...)
 			ranges = newranges
 		}
 		if len(ranges) > 1 {
