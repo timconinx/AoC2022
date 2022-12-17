@@ -21,7 +21,7 @@ type (
 )
 
 var valves = make(map[string]valve)
-var openablevalves int
+var tobeopened = []string{}
 var vdistances map[string]map[string]int = make(map[string]map[string]int)
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 		valveid := parts[1]
 		flowrate, _ := strconv.Atoi(parts[2])
 		if flowrate > 0 {
-			openablevalves++
+			tobeopened = append(tobeopened, valveid)
 		}
 		others := regexp.MustCompile(`valve(s?)\s(.+)$`).FindStringSubmatch(text)[2]
 		thisvalve := valve{id: valveid, rate: flowrate}
@@ -84,24 +84,48 @@ func main() {
 		}
 		vdistances[v.id] = vd
 	}
-	println("" + strconv.Itoa(len(distances)) + " number of distances")
-	/*println("distances from AA")
-	for target, distance := range vdistances["AA"] {
-		println(target + " at distance " + strconv.Itoa(distance))
-	}*/
-	maxpressure := maximumPressureFrom("AA", 30, []string{})
+	println("" + strconv.Itoa(len(tobeopened)) + " number of tobeopened")
+	maxpressure := maximumPressureFrom("AA", "AA", 26, 26, tobeopened)
 	println("maximum pressure deflated is " + strconv.Itoa(maxpressure))
 }
 
-func maximumPressureFrom(vid string, time int, opened []string) int {
-	if len(opened) == openablevalves {
+func maximumPressureFrom(vidyou string, videl string, timeyou int, timeel int, tobeopened []string) int {
+	if len(tobeopened) == 0 {
 		return 0
 	}
 	var maxp int
-	for target, distance := range vdistances[vid] {
-		timeworth := time - (distance + 1)
-		if timeworth > 0 && !contains(opened, target) {
-			p := timeworth*valves[target].rate + maximumPressureFrom(target, timeworth, append(opened, target))
+	for _, yourtarget := range tobeopened {
+		for _, elstarget := range tobeopened {
+			yourtimeworth := timeyou - (vdistances[vidyou][yourtarget] + 1)
+			elstimeworth := timeel - (vdistances[videl][elstarget] + 1)
+			var p int
+			newtobeopened := []string{}
+			if yourtimeworth > 0 && elstimeworth > 0 {
+				for _, t := range tobeopened {
+					if t != yourtarget && t != elstarget {
+						newtobeopened = append(newtobeopened, t)
+					}
+				}
+				p = yourtimeworth * valves[yourtarget].rate
+				p += elstimeworth * valves[elstarget].rate
+				p += maximumPressureFrom(yourtarget, elstarget, yourtimeworth, elstimeworth, newtobeopened)
+			} else if elstimeworth <= 0 {
+				for _, t := range tobeopened {
+					if t != yourtarget {
+						newtobeopened = append(newtobeopened, t)
+					}
+				}
+				p = yourtimeworth * valves[yourtarget].rate
+				p += maximumPressureFrom(yourtarget, elstarget, yourtimeworth, elstimeworth, newtobeopened)
+			} else if yourtimeworth <= 0 {
+				for _, t := range tobeopened {
+					if t != elstarget {
+						newtobeopened = append(newtobeopened, t)
+					}
+				}
+				p = elstimeworth * valves[elstarget].rate
+				p += maximumPressureFrom(yourtarget, elstarget, yourtimeworth, elstimeworth, newtobeopened)
+			}
 			if p > maxp {
 				maxp = p
 			}
