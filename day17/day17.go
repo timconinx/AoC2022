@@ -46,7 +46,7 @@ func (p plus) canMoveLeft(tops []int, x int, y int) bool {
 		} else {
 			return false
 		}
-		return true
+		//		return true
 	}
 	return false
 }
@@ -64,7 +64,7 @@ func (p plus) canMoveRight(tops []int, x int, y int) bool {
 		} else {
 			return false
 		}
-		return true
+		//		return true
 	}
 	return false
 }
@@ -153,13 +153,13 @@ func nextBlock(i int) block {
 	var result block
 	switch i % 5 {
 	case 0:
-		result = vertic{}
+		//		result = vertic{}
 	case 1:
 		result = plus{}
 	case 2:
-		result = el{}
+		//		result = el{}
 	case 3:
-		result = horiz{}
+		//		result = horiz{}
 	case 4:
 		result = square{}
 	}
