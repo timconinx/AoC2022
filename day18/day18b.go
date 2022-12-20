@@ -32,12 +32,22 @@ func (b block) exposedSides() int {
 	totalX := 2
 	totalY := 2
 	totalZ := 2
-	xyslice := XYSlices[b.x][b.y]
-	yzslice := YZSlices[b.y][b.z]
-	xzslice := XZSlices[b.x][b.z]
-	if b.x < yzslice.max {
-		if b.x+1 > XYSlices[b.x+1][b.y].min && b.x+1 < XYSlices[b.x+1][b.y].max {
-			if b.x+1 > XZSlices[b.x+1][b.z].min && b.x+1 < XZSlices[b.x+1][b.z].max {
+	/*	xyslice := XYSlices[b.x][b.y]
+		yzslice := YZSlices[b.y][b.z]
+		xzslice := XZSlices[b.x][b.z]*/
+	neighbour := false
+	for _, other := range blocksOnX[b.x+1] {
+		if b.y == other.y && b.z == other.z {
+			totalX--
+			neighbour = true
+			break
+		}
+	}
+	if !neighbour { //			if b.x < yzslice.max {
+		xysliceofbubble := XYSlices[b.x+1][b.y]
+		xzsliceofbubble := XZSlices[b.x+1][b.z]
+		if b.z > xysliceofbubble.min && b.z < xysliceofbubble.max {
+			if b.y > xzsliceofbubble.min && b.y < xzsliceofbubble.max {
 				//for _, other := range blocksOnX[b.x+1] {
 				//	if b.y == other.y && b.z == other.z {
 				totalX--
@@ -45,9 +55,17 @@ func (b block) exposedSides() int {
 			}
 		}
 	}
-	if b.x > yzslice.min {
-		if b.x-1 > XYSlices[b.x-1][b.y].min && b.x-1 < XYSlices[b.x-1][b.y].max {
-			if b.x-1 > XZSlices[b.x-1][b.z].min && b.x-1 < XZSlices[b.x-1][b.z].max {
+	neighbour = false
+	for _, other := range blocksOnX[b.x-1] {
+		if b.y == other.y && b.z == other.z {
+			totalX--
+			neighbour = true
+			break
+		}
+	}
+	if !neighbour { //	if b.x > yzslice.min {
+		if b.z > XYSlices[b.x-1][b.y].min && b.z < XYSlices[b.x-1][b.y].max {
+			if b.y > XZSlices[b.x-1][b.z].min && b.y < XZSlices[b.x-1][b.z].max {
 				//	for _, other := range blocksOnX[b.x-1] {
 				//		if b.x > yzslice.min || (b.y == other.y && b.z == other.z) {
 				totalX--
@@ -55,9 +73,17 @@ func (b block) exposedSides() int {
 			}
 		}
 	}
-	if b.y < xzslice.max {
-		if b.y+1 > XYSlices[b.x][b.y+1].min && b.y+1 < XYSlices[b.x][b.y+1].max {
-			if b.y+1 > YZSlices[b.y+1][b.z].min && b.y+1 < YZSlices[b.y+1][b.z].max {
+	neighbour = false
+	for _, other := range blocksOnY[b.y+1] {
+		if b.x == other.x && b.z == other.z {
+			totalX--
+			neighbour = true
+			break
+		}
+	}
+	if !neighbour { //	if b.y < xzslice.max {
+		if b.z > XYSlices[b.x][b.y+1].min && b.z < XYSlices[b.x][b.y+1].max {
+			if b.x > YZSlices[b.y+1][b.z].min && b.x < YZSlices[b.y+1][b.z].max {
 				//	for _, other := range blocksOnY[b.y+1] {
 				//		if b.y < xzslice.max || (b.x == other.x && b.z == other.z) {
 				totalY--
@@ -65,9 +91,17 @@ func (b block) exposedSides() int {
 			}
 		}
 	}
-	if b.y > xzslice.min {
-		if b.y-1 > XYSlices[b.x][b.y-1].min && b.y-1 < XYSlices[b.x][b.y-1].max {
-			if b.y-1 > YZSlices[b.y-1][b.z].min && b.y-1 < YZSlices[b.y-1][b.z].max {
+	neighbour = false
+	for _, other := range blocksOnY[b.y-1] {
+		if b.x == other.x && b.z == other.z {
+			totalX--
+			neighbour = true
+			break
+		}
+	}
+	if !neighbour { //	if b.y > xzslice.min {
+		if b.z > XYSlices[b.x][b.y-1].min && b.z < XYSlices[b.x][b.y-1].max {
+			if b.x > YZSlices[b.y-1][b.z].min && b.x < YZSlices[b.y-1][b.z].max {
 				//	for _, other := range blocksOnY[b.y-1] {
 				//		if b.y > xzslice.min || (b.x == other.x && b.z == other.z) {
 				totalY--
@@ -75,9 +109,17 @@ func (b block) exposedSides() int {
 			}
 		}
 	}
-	if b.z < xyslice.max {
-		if b.z+1 > XZSlices[b.x][b.z+1].min && b.z+1 < XZSlices[b.x][b.z+1].max {
-			if b.z+1 > YZSlices[b.y][b.z+1].min && b.z+1 < YZSlices[b.y][b.z+1].max {
+	neighbour = false
+	for _, other := range blocksOnZ[b.z+1] {
+		if b.x == other.x && b.y == other.y {
+			totalX--
+			neighbour = true
+			break
+		}
+	}
+	if !neighbour { //	if b.z < xyslice.max {
+		if b.y > XZSlices[b.x][b.z+1].min && b.y < XZSlices[b.x][b.z+1].max {
+			if b.x > YZSlices[b.y][b.z+1].min && b.x < YZSlices[b.y][b.z+1].max {
 				//	for _, other := range blocksOnZ[b.z+1] {
 				//		if b.z < xyslice.max || (b.x == other.x && b.y == other.y) {
 				totalZ--
@@ -85,9 +127,17 @@ func (b block) exposedSides() int {
 			}
 		}
 	}
-	if b.z > xyslice.min {
-		if b.z-1 > XZSlices[b.x][b.z-1].min && b.z-1 < XZSlices[b.x][b.z-1].max {
-			if b.z-1 > YZSlices[b.y][b.z-1].min && b.z-1 < YZSlices[b.y][b.z-1].max {
+	neighbour = false
+	for _, other := range blocksOnZ[b.z-1] {
+		if b.x == other.x && b.y == other.y {
+			totalX--
+			neighbour = true
+			break
+		}
+	}
+	if !neighbour { //	if b.z > xyslice.min {
+		if b.y > XZSlices[b.x][b.z-1].min && b.y < XZSlices[b.x][b.z-1].max {
+			if b.x > YZSlices[b.y][b.z-1].min && b.x < YZSlices[b.y][b.z-1].max {
 				//	for _, other := range blocksOnZ[b.z-1] {
 				//		if b.z > xyslice.min || (b.x == other.x && b.y == other.y) {
 				totalZ--
@@ -107,7 +157,7 @@ var YZSlices map[int]map[int]slice = make(map[int]map[int]slice)
 
 func main() {
 	allBlocks := []block{}
-	file, _ := os.Open("smalltest.txt")
+	file, _ := os.Open("input.txt")
 	defer file.Close()
 	reader := bufio.NewScanner(file)
 	for reader.Scan() {
