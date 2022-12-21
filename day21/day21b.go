@@ -15,7 +15,8 @@ type (
 	}
 
 	number struct {
-		n int
+		id string
+		n  int
 	}
 	operation struct {
 		m1      string
@@ -29,34 +30,22 @@ func (n number) evaluate() int {
 }
 
 func (n number) shouldbe(s int) int {
-	return n.n
+	return s
 }
 
 func (n number) containsHuman() bool {
-	return false
+	return n.id == "humn"
 }
 
 func (o operation) containsHuman() bool {
-	if o.m1 == "humn" || o.m2 == "humn" {
-		return true
-	}
 	return allmonkeys[o.m1].containsHuman() || allmonkeys[o.m2].containsHuman()
 }
 
 func (o operation) shouldbe(s int) int {
-	if o.m1 == "humn" || o.m2 == "humn" {
-		if o.m1 == "humn" {
-			return reverseEval1(o, s, allmonkeys[o.m2].evaluate())
-		} else {
-			return reverseEval2(o, s, allmonkeys[o.m1].evaluate())
-		}
-	}
 	if allmonkeys[o.m1].containsHuman() {
-		t := allmonkeys[o.m2].evaluate()
-		return allmonkeys[o.m1].shouldbe(reverseEval1(o, s, t))
+		return allmonkeys[o.m1].shouldbe(reverseEval1(o, s, allmonkeys[o.m2].evaluate()))
 	} else {
-		t := allmonkeys[o.m1].evaluate()
-		return allmonkeys[o.m2].shouldbe(reverseEval2(o, s, t))
+		return allmonkeys[o.m2].shouldbe(reverseEval2(o, s, allmonkeys[o.m1].evaluate()))
 	}
 }
 
@@ -108,7 +97,7 @@ func (o operation) evaluate() int {
 var allmonkeys = make(map[string]shout)
 
 func main() {
-	file, _ := os.Open("input.txt")
+	file, _ := os.Open("test.txt")
 	defer file.Close()
 	reader := bufio.NewScanner(file)
 	for reader.Scan() {
@@ -116,7 +105,7 @@ func main() {
 		if regexp.MustCompile(`\d`).MatchString(text) {
 			parts := regexp.MustCompile(`^(\w+):\s(\d+)$`).FindStringSubmatch(text)
 			n, _ := strconv.Atoi(parts[2])
-			allmonkeys[parts[1]] = number{n: n}
+			allmonkeys[parts[1]] = number{n: n, id: parts[1]}
 		} else {
 			parts := regexp.MustCompile(`^(\w+):\s(\w+)\s(.)\s(\w+)$`).FindStringSubmatch(text)
 			allmonkeys[parts[1]] = operation{m1: parts[2], operand: parts[3], m2: parts[4]}
